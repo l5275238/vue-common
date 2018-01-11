@@ -46,4 +46,4 @@ class Subscribe {
     Vue.prototype.$observer=this
   }
 }
-export default Subscribe
+export default Subscribe;

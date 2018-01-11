@@ -1,18 +1,18 @@
-
-function observe(data) {
+import Subscriber from './Subscriber.js'
+function observe(data,name,obj) {
   if (!data || typeof data !== 'object') {
     return;
   }
   // 取出所有属性遍历
   Object.keys(data).forEach(function(key) {
     if(key!='entityState'){
-      defineReactive(data, key, data[key]);
+      defineReactive(data, key, data[key],name,obj);
     }
 
   });
 };
-function defineReactive(data, key, val) {
-  observe(val); // 监听子属性
+function defineReactive(data, key, val,name,obj) {
+  observe(val,name,obj); // 监听子属性
   Object.defineProperty(data, key, {
     enumerable: true, // 可枚举
 //        configurable: false, // 不能再define
@@ -20,9 +20,7 @@ function defineReactive(data, key, val) {
       return val;
     },
     set: function(newVal) {
-      if(data.entityState!=2){
-        data.entityState=4
-      }
+      obj.Subscriber.emit(name)
       val = newVal;
     }
   });
@@ -31,7 +29,10 @@ function defineReactive(data, key, val) {
 class  Crud{
   constructor(arr){
     this.arr=arr;
-    this.init()
+    this.Subscriber=new Subscriber();
+    this.init();
+    this.watch();
+
   }
   delet(index){
     if(this.arr[index].entityState==2){
@@ -43,7 +44,6 @@ class  Crud{
   add(obj){
     this.arr.push(obj);
     obj.entityState=2
-    this.init()
   }
   init(){
     for(let value of this.arr){
@@ -52,11 +52,16 @@ class  Crud{
       }
       value.entityState=1;
     }
-    this.watch()
   }
   watch(){
-    for(let value of this.arr){
-      observe(value)
+    for(let [index,item] of new Map(this.arr.map((item,i)=>[i,item])))
+    {
+      this.Subscriber.on(index,()=>{
+       if( this.arr[index].entityState!=2){
+         this.arr[index].entityState=4
+       }
+      })
+      observe(item,index,this)
     }
   }
 }

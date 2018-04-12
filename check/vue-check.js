@@ -19,8 +19,9 @@ var main={};
 
 main.install=function (_Vue) {
   var vue=_Vue;
-
+//Vue全局加入注册自定义事件监听
   vue.prototype.$chek_observer=new Subscribe()
+    //单个inpu注册
   vue.directive('checked',{
     bind:function (el, binding, vnode) {
       var vm=vnode.context;
@@ -30,6 +31,7 @@ main.install=function (_Vue) {
       var para=document.createElement("p");
       el.vCheck=option;
       el.className='vue-check-input'
+        //移动端 手机 不需要失去焦点就触发
       if(isMobile){
         el.onblur=function () {
 
